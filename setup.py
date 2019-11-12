@@ -2,7 +2,7 @@
 from setuptools import setup
 
 setup(
-    name='sandbox-py',
+    name='little-sandbox-py',
     version='1.0.0.dev1',
     description='A sandbox for running python scripts',
     url='',
