@@ -3,9 +3,9 @@ from setuptools import setup
 
 setup(
     name='little-sandbox-py',
-    version='1.0.0.dev1',
+    version='1.0.2',
     description='A sandbox for running python scripts',
-    url='',
+    url='https://github.com/Hustcw/Little-Sandbox',
     author='hustcw',
     license='MIT',
     classifiers=[

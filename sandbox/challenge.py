@@ -3,7 +3,7 @@ from .config import sanboxConfig
 import os 
 
 class Challenge(object):
-    def __init__(self, filename: str, code: str, challenge_input=None, host_path=None, timeout=None, cpu=None, pids_limit=None, memory=None, memory_swap=None):
+    def __init__(self, filename: str, code: str, challenge_input=None, host_path=None, timeout=None, cpu=None, pids_limit=None, memory=None):
         self.filename = filename
         self.code = code
         self.input = challenge_input
@@ -12,7 +12,6 @@ class Challenge(object):
         self.cpu = cpu
         self.pids_limit = pids_limit
         self.memory = memory
-        self.memory_swap = memory_swap
 
     def initBox(self, config=sanboxConfig()):
         config['filename'] = self.filename 
@@ -28,8 +27,6 @@ class Challenge(object):
             config['pids_limit'] = self.pids_limit
         if self.memory:
             config['memory'] = self.memory
-        if self.memory_swap:
-            config['memory_swap'] = self.memory_swap
         # initialize the sandbox
         self.box = Box(config)
 

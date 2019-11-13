@@ -6,7 +6,7 @@ from hashlib import sha256
 
 class Box(object):
     def __init__(self, config):
-        self.filename = sha256((datetime.now().strftime("%Y%m%d%H%M")[8:-3]+config['filename']).encode('utf-8')).hexdigest()[:8]+'_'+config['filename']
+        self.filename = sha256((datetime.now().strftime("%Y%m%d%H%M")+config['filename']).encode('utf-8')).hexdigest()[:20]+'_'+config['filename']
         self.box_name = self.filename[:-3]
         # user's code
         self.code = config['code']
@@ -14,7 +14,6 @@ class Box(object):
         self.input = config['input']
         self.input_name = 'input_' + self.filename[:-3]
         self.memory = config['memory']
-        self.memory_swap = config['memory_swap']
         self.timeout = config['timeout']
         self.type = config['type']
         self.dependency = config['dependency']
@@ -47,7 +46,6 @@ class Box(object):
         cmd = (
             f"/usr/bin/docker run --rm -a stdout -a stderr "
             f"--memory {self.memory} "
-            f"--memory-swap {self.memory_swap} "
             f"--cpus {self.cpu} "
             f"--stop-timeout {self.timeout} "
             f"--pids-limit {self.pids_limit} "
