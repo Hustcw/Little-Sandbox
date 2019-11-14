@@ -5,7 +5,7 @@ def sanboxConfig():
     config = {
         'memory': '100M', # MB 
         'memory_swap': '100M', # MB
-        'timeout': 5, # seconds
+        'timeout': 3, # seconds
         'type': 'python3', 
         'dependency': 'todo',
         'cpu': 1,
