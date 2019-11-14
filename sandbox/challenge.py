@@ -1,5 +1,5 @@
-from box import Box
-from config import sanboxConfig
+from .box import Box
+from .config import sanboxConfig
 import os 
 
 class Challenge(object):
