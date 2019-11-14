@@ -26,4 +26,4 @@ helloWorld = Challenge(
 helloWorld.initBox()
 result = helloWorld.box.run()
 print('result:', result)
-# helloWorld.box.clear_file()
+helloWorld.box.clear_file()

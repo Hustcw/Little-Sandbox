@@ -2,6 +2,7 @@ import os
 import sys
 from datetime import datetime
 import subprocess
+import threading
 from hashlib import sha256
 
 class Box(object):
@@ -47,7 +48,6 @@ class Box(object):
             f"/usr/bin/docker run --rm -a stdout -a stderr "
             f"--memory {self.memory} "
             f"--cpus {self.cpu} "
-            f"--stop-timeout {self.timeout} "
             f"--pids-limit {self.pids_limit} "
             f"-v {self.host_path}:{self.container_path} "
             f"--name {self.box_name} "
@@ -59,7 +59,24 @@ class Box(object):
 
         #TODO:return result
         try:
-            out_bytes = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+            def kill_docker():
+                nonlocal timeout_flag
+                try:  # catch race 
+                    subprocess.check_output(f"/usr/bin/docker kill {self.box_name}", stderr=subprocess.STDOUT, shell=True)
+                    timeout_flag = True
+                except:
+                    return "are you kidding me?"
+            timeout_flag = False
+            finished_flag = False
+            t = threading.Timer(self.timeout, kill_docker)
+            t.start()
+            try: # container killed
+                out_bytes = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+                t.cancel()
+            except:
+                pass
+            if timeout_flag:
+                return f'timeout! you only have {self.timeout} seconds'
             return out_bytes.decode().strip()
         except subprocess.CalledProcessError as e:
             out_bytes = e.output       # Output generated before error
