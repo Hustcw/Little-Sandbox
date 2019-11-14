@@ -41,8 +41,7 @@ class Box(object):
 
     def run(self):
         #TODO: create code file
-        print(self.prepare())
-
+        self.prepare()
         #TODO: docker run parameters
         cmd = (
             f"/usr/bin/docker run --rm -a stdout -a stderr "
@@ -72,7 +71,6 @@ class Box(object):
             t.start()
             out_bytes = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
             try: # container killed 
-                print('yes')   
                 t.cancel()
             except:
                 pass
@@ -82,7 +80,6 @@ class Box(object):
                 return f'timeout! you only have {self.timeout} seconds'
             # other error
             try: # container killed 
-                print('yes')   
                 t.cancel()
             except:
                 pass
