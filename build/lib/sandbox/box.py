@@ -62,23 +62,30 @@ class Box(object):
             def kill_docker():
                 nonlocal timeout_flag
                 try:  # catch race 
-                    subprocess.check_output(f"/usr/bin/docker kill {self.box_name}", stderr=subprocess.STDOUT, shell=True)
                     timeout_flag = True
+                    subprocess.check_output(f"/usr/bin/docker kill {self.box_name}", stderr=subprocess.STDOUT, shell=True)
                 except:
                     return "are you kidding me?"
             timeout_flag = False
             finished_flag = False
             t = threading.Timer(self.timeout, kill_docker)
             t.start()
-            try: # container killed
-                out_bytes = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+            out_bytes = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
+            try: # container killed 
+                print('yes')   
                 t.cancel()
             except:
                 pass
-            if timeout_flag:
-                return f'timeout! you only have {self.timeout} seconds'
             return out_bytes.decode().strip()
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError as e: # timeout or error
+            if timeout_flag: # timeout
+                return f'timeout! you only have {self.timeout} seconds'
+            # other error
+            try: # container killed 
+                print('yes')   
+                t.cancel()
+            except:
+                pass
             out_bytes = e.output       # Output generated before error
             code      = e.returncode   # Return code
             return out_bytes.decode().strip().replace('File "/tmp/{}", '.format(self.filename), '')
