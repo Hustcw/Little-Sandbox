@@ -12,13 +12,15 @@ from challenge import Challenge
 # memory=None, <-- 内存限制， 默认30M
 # memory_swap=None)) <-- 交换空间， 默认100M
 
-helloWorld = Challenge(
-    'helloworld.py', 
-    '''print("hello world")'''
-    )
+helloWorld = Challenge('??',
+'''
+x = input()
+print(int(x)+1)''','1'
+)
 
 helloWorld.initBox()
 result, _ = helloWorld.box.run()
+
 print('stdout:')
 print(result["stdout"])
 print("stderr:")

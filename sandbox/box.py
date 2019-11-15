@@ -46,7 +46,7 @@ class Box(object):
         self.prepare()
         #TODO: docker run parameters
         cmd = (
-            f"/usr/bin/docker run --rm -i -a stderr "
+            f"/usr/bin/docker run --rm -i "
             f"--memory {self.memory} "
             f"--cpus {self.cpu} "
             f"--pids-limit {self.pids_limit} "

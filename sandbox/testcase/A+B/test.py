@@ -12,18 +12,21 @@ from generate import generate_input
 # memory=None, <-- 内存限制， 默认30M
 # memory_swap=None)) <-- 交换空间， 默认100M
 challenge_input = generate_input()
-helloWorld = Challenge(
-    'helloworld.py', 
-    '''while True:
-    try:
-        s=input().split()
-        print(int(s[0])+int(s[1]))
-    except:
-        ''', 
-    challenge_input
-    )
+helloWorld = Challenge('name',
+'''
+def fact(x):
+    if x == 0:
+        return 1
+    return x * fact(x - 1)
 
+x = int(input())
+print(fact(x)
+''', 
+'8'
+)
 helloWorld.initBox()
-result = helloWorld.box.run()
-print('result:', result)
-helloWorld.box.clear_file()
+result, _ = helloWorld.box.run()
+print('stdout:')
+print(result["stdout"])
+print("stderr:")
+print(result["stderr"])
