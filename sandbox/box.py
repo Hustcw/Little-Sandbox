@@ -4,10 +4,12 @@ from datetime import datetime
 import subprocess
 import threading
 from hashlib import sha256
+import random
+import string
 
 class Box(object):
     def __init__(self, config):
-        self.filename = sha256((datetime.now().strftime("%Y%m%d%H%M%S")+config['filename']).encode('utf-8')).hexdigest()[-25:]+'_'+config['filename']
+        self.filename = sha256((datetime.now().strftime("%Y%m%d%H%M%S")+config['filename']).encode('utf-8')).hexdigest()[-30:]+'_'+''.join(random.sample(string.ascii_letters + string.digits, 8))
         self.box_name = self.filename[:-3]
         # user's code
         self.code = config['code']
@@ -44,7 +46,7 @@ class Box(object):
         self.prepare()
         #TODO: docker run parameters
         cmd = (
-            f"/usr/bin/docker run --rm -a stdout -a stderr "
+            f"/usr/bin/docker run --rm -i -a stderr "
             f"--memory {self.memory} "
             f"--cpus {self.cpu} "
             f"--pids-limit {self.pids_limit} "
@@ -55,39 +57,35 @@ class Box(object):
             cmd = cmd + f"{self.image} /bin/sh -c \"cat /tmp/{self.input_name} | {self.type} /tmp/{self.filename}\"" # cat "/tmp/inputname | python3 "/tmp/filename"
         else:
             cmd = cmd + f"{self.image} {self.type} /tmp/{self.filename}" # python3 "/tmp/filename"
+        
+        def kill_docker():
+            nonlocal timeout_flag
+            try:  # catch race 
+                timeout_flag = True
+                subprocess.check_output(f"/usr/bin/docker kill {self.box_name}", stderr=subprocess.STDOUT, shell=True)
+            except:
+                return "are you kidding me?"
+        timeout_flag = False
 
-        #TODO:return result
-        try:
-            def kill_docker():
-                nonlocal timeout_flag
-                try:  # catch race 
-                    timeout_flag = True
-                    subprocess.check_output(f"/usr/bin/docker kill {self.box_name}", stderr=subprocess.STDOUT, shell=True)
-                except:
-                    return "are you kidding me?"
-            timeout_flag = False
-            finished_flag = False
-            t = threading.Timer(self.timeout, kill_docker)
-            t.start()
-            out_bytes = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-            try: # container killed 
-                t.cancel()
-            except:
-                pass
-            return out_bytes.decode().strip()
-        except subprocess.CalledProcessError as e: # timeout or error
-            if timeout_flag: # timeout
-                return f'timeout! you only have {self.timeout} seconds'
-            # other error
-            try: # container killed 
-                t.cancel()
-            except:
-                pass
-            out_bytes = e.output       # Output generated before error
-            code      = e.returncode   # Return code
-            return out_bytes.decode().strip().replace('File "/tmp/{}", '.format(self.filename), '')
+        t = threading.Timer(self.timeout, kill_docker)
+        t.start()
+        return_job = subprocess.run(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True, check=False)
+        stdout = return_job.stdout
+        stderr = return_job.stderr
+        # clear file
+        os.system(f"rm {self.host_path}/{self.filename}")
+        if self.input:
+            os.system(f"rm {self.host_path}/{self.input_name}")
+        try: # container killed 
+            t.cancel()
+        except:
+            pass
+        if timeout_flag: # timeout
+            return {"stdout": 'timeout! maybe you forget to stop a loop', "stderr": ""}, self.filename # 超时
+        return {"stdout": stdout.decode().strip(), "stderr": stderr.decode().strip()}, self.filename  # 正常或运行出错
 
     def clear_file(self):
+        return f"rm {self.host_path}/{self.filename}"
         os.system(f"rm {self.host_path}/{self.filename}")
         if self.input:
             os.system(f"rm {self.host_path}/{self.input_name}")

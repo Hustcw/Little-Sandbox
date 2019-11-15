@@ -18,7 +18,9 @@ helloWorld = Challenge(
     )
 
 helloWorld.initBox()
-result = helloWorld.box.run().strip()
-print('result:')
-print(result)
-helloWorld.box.clear_file()
+result, _ = helloWorld.box.run()
+print('stdout:')
+print(result["stdout"])
+print("stderr:")
+print(result["stderr"])
+print(helloWorld.box.clear_file())

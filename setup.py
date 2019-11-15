@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='little-sandbox-py',
-    version='1.0.6',
+    version='1.1.0',
     description='A sandbox for running python scripts',
     url='https://github.com/Hustcw/Little-Sandbox',
     author='hustcw',
